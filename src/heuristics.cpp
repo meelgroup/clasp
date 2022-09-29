@@ -674,7 +674,10 @@ Literal ClaspVsids_t<ScoreType>::doSelect(Solver& s) {
 	while ( s.value(vars_.top()) != value_free ) {
 		vars_.pop();
 	}
-	return selectLiteral(s, vars_.top(), occ(vars_.top()));
+	Literal x = selectLiteral(s, vars_.top(), occ(vars_.top()));
+   if (x.sign()) x = ~x;
+   //std::cout << "sign: " << x.sign() << " var: " << x.var() << std::endl;
+   return x;
 }
 template <class ScoreType>
 Literal ClaspVsids_t<ScoreType>::selectRange(Solver&, const Literal* first, const Literal* last) {
