@@ -606,6 +606,18 @@ public:
 	 * part of the assignment.
 	 */
 	const LitVec&     trail()                        const { return assign_.trail; }
+	const int32_t     getNextLit()                    
+	{ 
+		int32_t p = 0;
+		if (!assign_.del_map.empty()) {
+			assign_.del_map.clear();
+		}
+		if (assign_.del.size() > 0) {
+			p = assign_.del.back().var();
+			assign_.del.pop_back();
+		}
+		return p; 
+	}
 	const Assignment& assignment()                   const { return assign_; }
 	//! Returns the current conflict as a set of literals.
 	const LitVec&     conflict()                     const { return conflict_; }

@@ -72,6 +72,11 @@ ClingoAssignment::Lit_t ClingoAssignment::trailAt(uint32_t pos) const {
 	POTASSCO_REQUIRE(pos < trailSize(), "Invalid trail position");
 	return pos != 0 ? encodeLit(solver_->trail()[pos - trailOffset]) : encodeLit(lit_true());
 }
+ClingoAssignment::Lit_t ClingoAssignment::nextdel() const {
+	// POTASSCO_REQUIRE(pos < trailSize(), "Invalid trail position");
+	auto* solver_mutable = const_cast<Solver*>(solver_); 
+	return solver_mutable->getNextLit();
+}
 uint32_t ClingoAssignment::trailBegin(uint32_t dl) const {
 	POTASSCO_REQUIRE(dl <= solver_->decisionLevel(), "Invalid decision level");
 	return dl != 0 ? solver_->levelStart(dl) + trailOffset : 0;

@@ -33,6 +33,7 @@
 #include <clasp/util/misc_types.h>
 #include <clasp/util/type_manip.h>
 #include <numeric>
+#include <unordered_set>
 /*!
  * \file
  * \brief Types and functions used by a Solver
@@ -613,6 +614,8 @@ public:
 	typedef ReasonVec::value_type       ReasonWithData;
 	Assignment() : front(0), elims_(0), units_(0) { }
 	LitVec  trail;   // assignment sequence
+	LitVec  del;   // change for propagator
+	std::unordered_set<uint32_t> del_map;
 	uint32  front;   // and "propagation queue"
 	bool    qEmpty() const { return front == static_cast<uint32>(trail.size()); }
 	uint32  qSize()  const { return static_cast<uint32>(trail.size() - front); }
@@ -677,6 +680,11 @@ public:
 			assign_[v] = (lev<<4) + trueValue(p);
 			reason_[v] = x;
 			trail.push_back(p);
+			// add p to del 
+			if (del_map.find(p.var()) == del_map.end()) {
+				del.push_back(p);
+				del_map.insert(p.var());
+			}
 			return true;
 		}
 		return val == trueValue(p);
@@ -690,6 +698,11 @@ public:
 			reason_[v] = c;
 			reason_.setData(v, data);
 			trail.push_back(p);
+			// add p to del 
+			if (del_map.find(p.var()) == del_map.end()) {
+				del.push_back(p);
+				del_map.insert(p.var());
+			}
 			return true;
 		}
 		return val == trueValue(p);
@@ -705,7 +718,15 @@ public:
 		qReset();
 	}
 	//! Undos the last assignment.
-	void undoLast() { clear(trail.back().var()); trail.pop_back(); }
+	void undoLast()
+	{
+		if (del_map.find(trail.back().var()) == del_map.end()) {
+			del.push_back(trail.back());
+			del_map.insert(trail.back().var());
+		}
+		clear(trail.back().var());
+		trail.pop_back();
+	}
 	//! Returns the last assignment as a true literal.
 	Literal last() const { return trail.back(); }
 	Literal&last()       { return trail.back(); }
@@ -741,8 +762,14 @@ private:
 	template <void (Assignment::*op)(Var v)>
 	void popUntil(Literal stop) {
 		Literal p;
-		do {
-			p = trail.back(); trail.pop_back();
+		do
+		{
+			p = trail.back();
+			if (del_map.find(p.var()) == del_map.end()) {
+				del.push_back(p);
+				del_map.insert(p.var());
+			}
+			trail.pop_back();
 			(this->*op)(p.var());
 		} while (p != stop);
 	}

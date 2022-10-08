@@ -998,6 +998,10 @@ uint32 Solver::estimateBCP(const Literal& p, int rd) const {
 	Solver& self            = const_cast<Solver&>(*this);
 	self.assign_.setValue(p.var(), trueValue(p));
 	self.assign_.trail.push_back(p);
+	if (self.assign_.del_map.find(p.var()) == self.assign_.del_map.end()) {
+		self.assign_.del.push_back(p);
+		self.assign_.del_map.insert(p.var());
+	}
 	const ShortImplicationsGraph& btig = shared_->shortImplications();
 	const uint32 maxIdx = btig.size();
 	do {
