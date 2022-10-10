@@ -800,7 +800,7 @@ void Solver::cancelPropagation() {
 }
 
 bool Solver::propagate() {
-	if (unitPropagate() && postPropagate(0)) {
+	if (unitPropagate()) {
 		assert(queueSize() == 0);
 		return true;
 	}
@@ -882,8 +882,18 @@ bool Solver::unitPropagate() {
 			}
 			wl.shrink_right(j);
 		}
+		if (DL || assign_.markUnits())
+		{
+			if (!postPropagate(0))
+			{
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
 	}
-	return DL || assign_.markUnits();
+	return true;
 }
 
 bool Solver::postPropagate(PostPropagator* stop) {
