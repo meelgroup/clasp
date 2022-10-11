@@ -800,7 +800,7 @@ void Solver::cancelPropagation() {
 }
 
 bool Solver::propagate() {
-	if (combinedPropagate()) {
+	if (combinedPropagate(0)) {
 		assert(queueSize() == 0);
 		return true;
 	}
@@ -810,7 +810,8 @@ bool Solver::propagate() {
 
 bool Solver::propagateUntil(PostPropagator* p) {
 	assert((!p || *postHead_) && "OP not allowed during init!");
-	return unitPropagate() && (p == *postHead_ || postPropagate(p));
+	return combinedPropagate(p);
+	//return unitPropagate() && (p == *postHead_ || postPropagate(p));
 }
 
 Constraint::PropResult ClauseHead::propagate(Solver& s, Literal p, uint32&) {
@@ -886,7 +887,7 @@ bool Solver::unitPropagate() {
 	return DL || assign_.markUnits();
 }
 
-bool Solver::combinedPropagate() {
+bool Solver::combinedPropagate(PostPropagator* stop) {
 	assert(!hasConflict());
 	Literal p, q, r;
 	uint32 idx, ignore, DL = decisionLevel();
@@ -934,9 +935,9 @@ bool Solver::combinedPropagate() {
 			}
 			wl.shrink_right(j);
 		}
-		if (DL || assign_.markUnits())
+		if ((DL || assign_.markUnits()) && (stop == 0 || stop != *postHead_))
 		{
-			if (!postPropagate(0))
+			if (!postPropagate(stop))
 			{
 				return false;
 			}
