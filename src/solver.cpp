@@ -800,7 +800,7 @@ void Solver::cancelPropagation() {
 }
 
 bool Solver::propagate() {
-	if (unitPropagate()) {
+	if (combinedPropagate()) {
 		assert(queueSize() == 0);
 		return true;
 	}
@@ -835,6 +835,58 @@ Constraint::PropResult ClauseHead::propagate(Solver& s, Literal p, uint32&) {
 }
 
 bool Solver::unitPropagate() {
+	assert(!hasConflict());
+	Literal p, q, r;
+	uint32 idx, ignore, DL = decisionLevel();
+	const ShortImplicationsGraph& btig = shared_->shortImplications();
+	const uint32 maxIdx = btig.size();
+	while ( !assign_.qEmpty() ) {
+		p             = assign_.qPop();
+		idx           = p.id();
+		WatchList& wl = watches_[idx];
+		// first: short clause BCP
+		if (idx < maxIdx && !btig.propagate(*this, p)) {
+			return false;
+		}
+		// second: clause BCP
+		if (wl.left_size() != 0) {
+			WatchList::left_iterator it, end, j = wl.left_begin();
+			Constraint::PropResult res;
+			for (it = wl.left_begin(), end = wl.left_end();  it != end;  ) {
+				ClauseWatch& w = *it++;
+				res = w.head->ClauseHead::propagate(*this, p, ignore);
+				if (res.keepWatch) {
+					*j++ = w;
+				}
+				if (!res.ok) {
+					wl.shrink_left(std::copy(it, end, j));
+					return false;
+				}
+			}
+			wl.shrink_left(j);
+		}
+		// third: general constraint BCP
+		if (wl.right_size() != 0) {
+			WatchList::right_iterator it, end, j = wl.right_begin();
+			Constraint::PropResult res;
+			for (it = wl.right_begin(), end = wl.right_end(); it != end; ) {
+				GenericWatch& w = *it++;
+				res = w.propagate(*this, p);
+				if (res.keepWatch) {
+					*j++ = w;
+				}
+				if (!res.ok) {
+					wl.shrink_right(std::copy(it, end, j));
+					return false;
+				}
+			}
+			wl.shrink_right(j);
+		}
+	}
+	return DL || assign_.markUnits();
+}
+
+bool Solver::combinedPropagate() {
 	assert(!hasConflict());
 	Literal p, q, r;
 	uint32 idx, ignore, DL = decisionLevel();

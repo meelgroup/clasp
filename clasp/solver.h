@@ -840,6 +840,7 @@ private:
 	void    resetHeuristic(Solver* detach, DecisionHeuristic* h = 0, Ownership_t::Type own = Ownership_t::Acquire);
 	bool    simplifySAT();
 	bool    unitPropagate();
+	bool 	combinedPropagate();
 	bool    postPropagate(PostPropagator* stop);
 	void    cancelPropagation();
 	uint32  undoUntilImpl(uint32 dl, bool sp);
