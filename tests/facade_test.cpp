@@ -1516,7 +1516,7 @@ namespace {
 class MyProp : public Potassco::AbstractPropagator {
 public:
 	MyProp() : fire(lit_false()), clProp(Potassco::Clause_t::Learnt) {}
-	virtual void propagate(Potassco::AbstractSolver& s, const ChangeList& changes) {
+	virtual void propagate(Potassco::AbstractSolver& s, const ChangeList& changes, const ChangeList& dels) {
 		map(changes);
 		addClause(s);
 	}

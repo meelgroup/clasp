@@ -2,3 +2,4 @@
 [submodule "libpotassco"]
 	path = libpotassco
 	url = git@github.com:meelgroup/libpotassco.git
+	branch = new-del
