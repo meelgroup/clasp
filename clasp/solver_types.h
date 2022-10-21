@@ -606,6 +606,7 @@ class Assignment  {
 public:
 	typedef PodVector<uint32>::type     AssignVec;
 	typedef PodVector<ValueSet>::type   PrefVec;
+	typedef PodVector<int32_t>::type       AspifVec;
 	typedef bk_lib::detail::if_then_else<
 		sizeof(Constraint*)==sizeof(uint64)
 		, ReasonStore64
@@ -613,6 +614,7 @@ public:
 	typedef ReasonVec::value_type       ReasonWithData;
 	Assignment() : front(0), elims_(0), units_(0) { }
 	LitVec  trail;   // assignment sequence
+	AspifVec  del;   // pass change to post propagator
 	uint32  front;   // and "propagation queue"
 	bool    qEmpty() const { return front == static_cast<uint32>(trail.size()); }
 	uint32  qSize()  const { return static_cast<uint32>(trail.size() - front); }
@@ -677,6 +679,7 @@ public:
 			assign_[v] = (lev<<4) + trueValue(p);
 			reason_[v] = x;
 			trail.push_back(p);
+			del.push_back(encodeLit(p));
 			return true;
 		}
 		return val == trueValue(p);
@@ -690,6 +693,7 @@ public:
 			reason_[v] = c;
 			reason_.setData(v, data);
 			trail.push_back(p);
+			del.push_back(encodeLit(p));
 			return true;
 		}
 		return val == trueValue(p);
@@ -705,7 +709,12 @@ public:
 		qReset();
 	}
 	//! Undos the last assignment.
-	void undoLast() { clear(trail.back().var()); trail.pop_back(); }
+	void undoLast()
+	{
+		del.push_back(encodeLit(trail.back()));
+		clear(trail.back().var());
+		trail.pop_back();
+	}
 	//! Returns the last assignment as a true literal.
 	Literal last() const { return trail.back(); }
 	Literal&last()       { return trail.back(); }
@@ -742,7 +751,9 @@ private:
 	void popUntil(Literal stop) {
 		Literal p;
 		do {
-			p = trail.back(); trail.pop_back();
+			p = trail.back(); 
+			del.push_back(encodeLit(p));
+			trail.pop_back();
 			(this->*op)(p.var());
 		} while (p != stop);
 	}

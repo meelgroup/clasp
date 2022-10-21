@@ -606,6 +606,7 @@ public:
 	 * part of the assignment.
 	 */
 	const LitVec&     trail()                        const { return assign_.trail; }
+	const PodVector<int32_t>::type&     del()         const { return assign_.del; }
 	const Assignment& assignment()                   const { return assign_; }
 	//! Returns the current conflict as a set of literals.
 	const LitVec&     conflict()                     const { return conflict_; }

@@ -186,10 +186,12 @@ private:
 	Propagator* call_;  // wrapped theory propagator
 	AspifVec    trail_; // assignment trail: watched literals that are true
 	AspifVec    temp_;  // temporary buffer used to pass changes to user
+	AspifVec    temp_del_;  // temporary buffer used to pass changes to user
 	VarVec      undo_;  // offsets into trail marking beginnings of decision levels
 	ClauseDB    db_;    // clauses added with flag static
 	ClauseTodo  todo_;  // active clause to be added (received from theory propagator)
 	size_t      prop_;  // offset into trail: literals [0, prop_) were propagated
+	size_t      last_del_;  // offset into trail: literals [0, last_del_) has been passed
 	size_t      epoch_; // number of calls into callback
 	uint32      level_; // highest undo level
 	uint32      propL_; // decision level on handling propagate() from theory propagator

@@ -272,9 +272,11 @@ bool ClingoPropagator::propagateFixpoint(Clasp::Solver& s, Clasp::PostPropagator
 		if (prop_ != trail_.size()) {
 			// create copy because trail might change during call to user propagation
 			temp_.assign(trail_.begin() + prop_, trail_.end());
+			temp_del_.assign(s.del().begin(), s.del().end());
 			POTASSCO_REQUIRE(s.level(decodeLit(temp_[0]).var()) == s.decisionLevel(), "Propagate must be called on each level");
 			prop_ = static_cast<uint32>(trail_.size());
-			ScopedLock(call_->lock(), call_->propagator(), Inc(epoch_))->propagate(ctrl, Potassco::toSpan(temp_), Potassco::toSpan(temp_));
+			temp_del_.clear();
+			ScopedLock(call_->lock(), call_->propagator(), Inc(epoch_))->propagate(ctrl, Potassco::toSpan(temp_), Potassco::toSpan(temp_del_));
 		}
 		else {
 			registerUndoCheck(s);
