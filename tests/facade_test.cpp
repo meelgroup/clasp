@@ -1523,7 +1523,7 @@ public:
 	virtual void undo(const Potassco::AbstractSolver&, const ChangeList& changes) {
 		map(changes);
 	}
-	virtual void check(Potassco::AbstractSolver& s) {
+	virtual void check(Potassco::AbstractSolver& s, const ChangeList& dels) {
 		const Potassco::AbstractAssignment& assign = s.assignment();
 		for (Potassco::LitVec::const_iterator it = clause.begin(), end = clause.end(); it != end; ++it) {
 			if (assign.isTrue(*it)) { return; }

@@ -279,9 +279,11 @@ bool ClingoPropagator::propagateFixpoint(Clasp::Solver& s, Clasp::PostPropagator
 			s.clear_del();
 		}
 		else {
+			temp_del_.assign(s.del().begin(), s.del().end());
 			registerUndoCheck(s);
 			front_ = (int32)s.numAssignedVars();
-			ScopedLock(call_->lock(), call_->propagator(), Inc(epoch_))->check(ctrl);
+			ScopedLock(call_->lock(), call_->propagator(), Inc(epoch_))->check(ctrl, Potassco::toSpan(temp_del_));
+			s.clear_del();
 		}
 		if (!addClause(s, state_prop) || (s.queueSize() && !s.propagateUntil(this))) {
 			return false;
@@ -370,8 +372,10 @@ bool ClingoPropagator::simplify(Solver& s, bool) {
 bool ClingoPropagator::isModel(Solver& s) {
 	POTASSCO_REQUIRE(prop_ == trail_.size(), "Assignment not propagated");
 	if (call_->checkMode() & ClingoPropagatorCheck_t::Total) {
+		temp_del_.assign(s.del().begin(), s.del().end());
 		Control ctrl(*this, s);
-		ScopedLock(call_->lock(), call_->propagator(), Inc(epoch_))->check(ctrl);
+		ScopedLock(call_->lock(), call_->propagator(), Inc(epoch_))->check(ctrl, Potassco::toSpan(temp_del_));
+		s.clear_del();
 		return addClause(s, 0u) && s.numFreeVars() == 0 && s.queueSize() == 0;
 	}
 	return true;
