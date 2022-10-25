@@ -323,13 +323,14 @@ Literal ClaspBerkmin::selectLiteral(Solver& s, Var v, bool vsids) const {
 	if (order_.huang && std::abs(signScore) > 32 && !pref.has(ValueSet::user_value)) {
 		return Literal(v, signScore < 0);
 	}
-	// compute expensive sign score only if necessary
-	if (vsids && !pref.has(ValueSet::user_value | ValueSet::pref_value | ValueSet::saved_value)) {
-		int32 w0 = (int32)s.estimateBCP(posLit(v), 5);
-		int32 w1 = (int32)s.estimateBCP(negLit(v), 5);
-		if (w1 != 1 || w0 != w1) { signScore = w0 - w1; }
-	}
-	return DecisionHeuristic::selectLiteral(s, v, signScore);
+	// // compute expensive sign score only if necessary
+	// if (vsids && !pref.has(ValueSet::user_value | ValueSet::pref_value | ValueSet::saved_value)) {
+	// 	int32 w0 = (int32)s.estimateBCP(posLit(v), 5);
+	// 	int32 w1 = (int32)s.estimateBCP(negLit(v), 5);
+	// 	if (w1 != 1 || w0 != w1) { signScore = w0 - w1; }
+	// }
+	return DecisionHeuristic::selectLiteral(s, v, signScore < 0);
+	// return Literal(v, s.getPolarity(Literal(v, false)));
 }
 
 void ClaspBerkmin::Order::resetDecay() {

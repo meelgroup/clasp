@@ -30,7 +30,7 @@
 #include <clasp/solver_types.h>
 #include <clasp/solver_strategies.h>
 #include <clasp/shared_context.h>
-
+#include <iostream>
 namespace Clasp {
 
 /**
@@ -607,6 +607,12 @@ public:
 	 */
 	const LitVec&     trail()                        const { return assign_.trail; }
 	const Assignment& assignment()                   const { return assign_; }
+	const bool getPolarity(Literal p) const {
+		if (assign_.polCache.find(p.var()) == assign_.polCache.end()) {
+			return false;
+		}
+		return assign_.polCache.find(p.var())->second;
+	}
 	//! Returns the current conflict as a set of literals.
 	const LitVec&     conflict()                     const { return conflict_; }
 	//! Returns the most recently derived conflict clause.

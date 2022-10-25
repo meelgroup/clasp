@@ -33,6 +33,7 @@
 #include <clasp/util/misc_types.h>
 #include <clasp/util/type_manip.h>
 #include <numeric>
+#include <unordered_map>
 /*!
  * \file
  * \brief Types and functions used by a Solver
@@ -613,6 +614,7 @@ public:
 	typedef ReasonVec::value_type       ReasonWithData;
 	Assignment() : front(0), elims_(0), units_(0) { }
 	LitVec  trail;   // assignment sequence
+	std::unordered_map<uint32_t, bool> polCache;
 	uint32  front;   // and "propagation queue"
 	bool    qEmpty() const { return front == static_cast<uint32>(trail.size()); }
 	uint32  qSize()  const { return static_cast<uint32>(trail.size() - front); }
@@ -673,6 +675,7 @@ public:
 		const Var      v   = p.var();
 		const ValueRep val = value(v);
 		if (val == value_free) {
+			polCache[v] = p.sign();
 			assert(valid(v));
 			assign_[v] = (lev<<4) + trueValue(p);
 			reason_[v] = x;
@@ -685,6 +688,7 @@ public:
 		const Var      v   = p.var();
 		const ValueRep val = value(v);
 		if (val == value_free) {
+			polCache[v] = p.sign();
 			assert(valid(v));
 			assign_[v] = (lev<<4) + trueValue(p);
 			reason_[v] = c;
