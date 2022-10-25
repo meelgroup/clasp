@@ -76,6 +76,11 @@ uint32_t ClingoAssignment::trailBegin(uint32_t dl) const {
 	POTASSCO_REQUIRE(dl <= solver_->decisionLevel(), "Invalid decision level");
 	return dl != 0 ? solver_->levelStart(dl) + trailOffset : 0;
 }
+bool ClingoAssignment::clear_del() const {
+	// POTASSCO_REQUIRE(pos < trailSize(), "Invalid trail position");
+	auto* solver_mutable = const_cast<Solver*>(solver_); 
+	return solver_mutable->clear_del();
+}
 uint32_t ClingoAssignment::size()            const { return std::max(solver_->numVars(), solver_->numProblemVars()) + trailOffset; }
 uint32_t ClingoAssignment::unassigned()      const { return size() - trailSize(); }
 bool     ClingoAssignment::hasConflict()     const { return solver_->hasConflict(); }
@@ -276,14 +281,14 @@ bool ClingoPropagator::propagateFixpoint(Clasp::Solver& s, Clasp::PostPropagator
 			POTASSCO_REQUIRE(s.level(decodeLit(temp_[0]).var()) == s.decisionLevel(), "Propagate must be called on each level");
 			prop_ = static_cast<uint32>(trail_.size());
 			ScopedLock(call_->lock(), call_->propagator(), Inc(epoch_))->propagate(ctrl, Potassco::toSpan(temp_), Potassco::toSpan(temp_del_));
-			s.clear_del();
+			// s.clear_del();
 		}
 		else {
 			temp_del_.assign(s.del().begin(), s.del().end());
 			registerUndoCheck(s);
 			front_ = (int32)s.numAssignedVars();
 			ScopedLock(call_->lock(), call_->propagator(), Inc(epoch_))->check(ctrl, Potassco::toSpan(temp_del_));
-			s.clear_del();
+			// s.clear_del();
 		}
 		if (!addClause(s, state_prop) || (s.queueSize() && !s.propagateUntil(this))) {
 			return false;
@@ -375,7 +380,7 @@ bool ClingoPropagator::isModel(Solver& s) {
 		temp_del_.assign(s.del().begin(), s.del().end());
 		Control ctrl(*this, s);
 		ScopedLock(call_->lock(), call_->propagator(), Inc(epoch_))->check(ctrl, Potassco::toSpan(temp_del_));
-		s.clear_del();
+		// s.clear_del();
 		return addClause(s, 0u) && s.numFreeVars() == 0 && s.queueSize() == 0;
 	}
 	return true;

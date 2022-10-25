@@ -607,7 +607,13 @@ public:
 	 */
 	const LitVec&     trail()                        const { return assign_.trail; }
 	const PodVector<int32_t>::type&     del()         const { return assign_.del; }
-	void     clear_del()                     			{ assign_.del.clear(); }
+	const bool getPolarity(Literal p) const {
+		if (assign_.polCache.find(p.var()) == assign_.polCache.end()) {
+			return false;
+		}
+		return assign_.polCache.find(p.var())->second;
+	}
+	bool     clear_del()                     			{ assign_.del.clear(); return true;}
 	const Assignment& assignment()                   const { return assign_; }
 	//! Returns the current conflict as a set of literals.
 	const LitVec&     conflict()                     const { return conflict_; }

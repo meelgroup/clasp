@@ -23,6 +23,7 @@
 //
 #ifndef CLASP_SOLVER_TYPES_H_INCLUDED
 #define CLASP_SOLVER_TYPES_H_INCLUDED
+#include <unordered_map>
 #ifdef _MSC_VER
 #pragma once
 #endif
@@ -615,6 +616,7 @@ public:
 	Assignment() : front(0), elims_(0), units_(0) { }
 	LitVec  trail;   // assignment sequence
 	AspifVec  del;   // pass change to post propagator
+	std::unordered_map<uint32_t, bool> polCache;
 	uint32  front;   // and "propagation queue"
 	bool    qEmpty() const { return front == static_cast<uint32>(trail.size()); }
 	uint32  qSize()  const { return static_cast<uint32>(trail.size() - front); }
@@ -676,6 +678,7 @@ public:
 		const ValueRep val = value(v);
 		if (val == value_free) {
 			assert(valid(v));
+			// polCache[v] = p.sign();
 			assign_[v] = (lev<<4) + trueValue(p);
 			reason_[v] = x;
 			trail.push_back(p);
@@ -689,6 +692,7 @@ public:
 		const ValueRep val = value(v);
 		if (val == value_free) {
 			assert(valid(v));
+			// polCache[v] = p.sign();
 			assign_[v] = (lev<<4) + trueValue(p);
 			reason_[v] = c;
 			reason_.setData(v, data);

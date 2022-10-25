@@ -221,6 +221,7 @@ public:
 	virtual uint32_t trailSize()          const;
 	virtual Lit_t    trailAt(uint32_t)    const;
 	virtual uint32_t trailBegin(uint32_t) const;
+	virtual bool clear_del() const;
 
 	const Solver& solver() const { return *solver_;  }
 private:
