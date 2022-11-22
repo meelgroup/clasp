@@ -329,8 +329,8 @@ Literal ClaspBerkmin::selectLiteral(Solver& s, Var v, bool vsids) const {
 	// 	int32 w1 = (int32)s.estimateBCP(negLit(v), 5);
 	// 	if (w1 != 1 || w0 != w1) { signScore = w0 - w1; }
 	// }
-	return DecisionHeuristic::selectLiteral(s, v, signScore < 0);
-	// return Literal(v, s.getPolarity(Literal(v, false)));
+	// return DecisionHeuristic::selectLiteral(s, v, signScore < 0);
+	return Literal(v, s.getPolarity(Literal(v, false)));
 }
 
 void ClaspBerkmin::Order::resetDecay() {

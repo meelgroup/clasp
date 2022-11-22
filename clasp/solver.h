@@ -609,7 +609,7 @@ public:
 	const Assignment& assignment()                   const { return assign_; }
 	const bool getPolarity(Literal p) const {
 		if (assign_.polCache.find(p.var()) == assign_.polCache.end()) {
-			return false;
+			return true; // initially it must be false; line 87 of literal.h 
 		}
 		return assign_.polCache.find(p.var())->second;
 	}
