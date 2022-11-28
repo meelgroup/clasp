@@ -613,6 +613,9 @@ public:
 		}
 		return assign_.polCache.find(p.var())->second;
 	}
+	const bool hasPolarity(Literal p) const {
+		return assign_.polCache.find(p.var()) != assign_.polCache.end();
+	}
 	//! Returns the current conflict as a set of literals.
 	const LitVec&     conflict()                     const { return conflict_; }
 	//! Returns the most recently derived conflict clause.
