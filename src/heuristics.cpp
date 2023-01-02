@@ -490,6 +490,10 @@ Literal ClaspVmtf::doSelect(Solver& s) {
 	else {
 		c = selectLiteral(s, *front_, score_[*front_].occ_);
 	}
+	// the polarity caching part
+	// if (s.hasPolarity(Literal(c.var(), false))) {
+		c = Literal(c.var(), s.getPolarity(Literal(c.var(), false)));
+	// }
 	return c;
 }
 

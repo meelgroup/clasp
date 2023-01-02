@@ -305,7 +305,7 @@ void BasicSatConfig::setHeuristicCreator(HeuristicCreator* hc, Ownership_t::Type
 // Heuristics
 /////////////////////////////////////////////////////////////////////////////////////////
 DecisionHeuristic* Heuristic_t::create(Type id, const HeuParams& p) {
-	id = Berkmin;
+	id = Vmtf;
 	if (id == Berkmin) { return new ClaspBerkmin(p); }
 	if (id == Vmtf)    { return new ClaspVmtf(p); }
 	if (id == Unit)    { return new UnitHeuristic(); }
